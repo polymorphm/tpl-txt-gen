@@ -1,6 +1,6 @@
 # -*- mode: python; coding: utf-8 -*-
 #
-# Copyright 2012 Andrej A Antonov <polymorphm@gmail.com>.
+# Copyright 2012, 2013 Andrej A Antonov <polymorphm@gmail.com>.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -15,15 +15,12 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import absolute_import
+assert str is not bytes
 
-assert unicode is not str
-assert str is bytes
-
-import argparse, locale
+import argparse
 from . import tpl_txt_gen
 
-DESCRIPTION = u'`tpl-txt-gen` is utility for massive generate text files on a template.'
+DESCRIPTION = '`tpl-txt-gen` is utility for massive generate text files on a template.'
 
 class UserError(Exception):
     pass
@@ -32,16 +29,16 @@ def main():
     parser = argparse.ArgumentParser(description=DESCRIPTION)
     
     parser.add_argument('tpl_path', metavar='TPL-FILE-PATH',
-            help=u'template file path for define task\'s process')
+            help='template file path for define task\'s process')
     parser.add_argument('out_path', metavar='OUT-DIR-PATH',
-            help=u'output directory path for text new files')
+            help='output directory path for text new files')
     parser.add_argument('count', metavar='COUNT', type=int,
-            help=u'count of output files')
+            help='count of output files')
     
     args = parser.parse_args()
     
-    tpl_path = args.tpl_path.decode(locale.getdefaultlocale()[1])
-    out_path = args.out_path.decode(locale.getdefaultlocale()[1])
+    tpl_path = args.tpl_path
+    out_path = args.out_path
     count = args.count
     
     if count < 0:

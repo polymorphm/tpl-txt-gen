@@ -1,6 +1,6 @@
 # -*- mode: python; coding: utf-8 -*-
 #
-# Copyright 2012 Andrej A Antonov <polymorphm@gmail.com>.
+# Copyright 2012, 2013 Andrej A Antonov <polymorphm@gmail.com>.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -15,13 +15,10 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import absolute_import
-
-assert unicode is not str
-assert str is bytes
+assert str is not bytes
 
 import os, os.path, weakref, importlib
-from tornado import template
+from mako import lookup as mako_lookup
 from . import get_items
 
 class TplTxtGenEnviron(object):
@@ -105,7 +102,8 @@ DEFAULT_FUNC_FACTORY_MAP = FUNC_FACTORY_MAP
 
 def count_iter(count):
     if count is not None:
-        for i in xrange(count):
+        for i in range(count):
+            # TODO: for Python-3.3+ -- need fix to PEP-0380
             yield i
     else:
         while True:
@@ -121,8 +119,8 @@ def tpl_txt_gen_iter(tpl_path, count=None,
     
     environ.root_dir = os.path.dirname(environ.tpl_path)
     environ.tpl_name = os.path.basename(environ.tpl_path)
-    environ.tpl_loader = template.Loader(environ.root_dir)
-    environ.tpl = environ.tpl_loader.load(environ.tpl_name.encode('ascii'))
+    environ.tpl_lookup = mako_lookup.TemplateLookup(directories=(environ.root_dir, ))
+    environ.tpl = environ.tpl_lookup.get_template(environ.tpl_name)
     
     if func_factory_map is None:
         func_factory_map = DEFAULT_FUNC_FACTORY_MAP
@@ -134,19 +132,15 @@ def tpl_txt_gen_iter(tpl_path, count=None,
     }
     
     for i in count_iter(environ.count):
-        kwargs = {
+        tpl_kwargs = {
             func_name:
                     func_factories[func_name]()
                             for func_name in func_factories
         }
         
-        yield environ.tpl.generate(**kwargs)
+        yield environ.tpl.render(**tpl_kwargs)
 
 def tpl_txt_gen(tpl_path, out_path, count):
-    assert isinstance(tpl_path, unicode)
-    assert isinstance(out_path, unicode)
-    assert isinstance(count, int)
-    
     out_path_created = False
     
     for i, text in enumerate(tpl_txt_gen_iter(tpl_path, count=count)):
@@ -154,9 +148,8 @@ def tpl_txt_gen(tpl_path, out_path, count):
             os.mkdir(out_path)
             out_path_created = True
         
-        out_name = u'out-%s.txt' % i
+        out_name = 'out-{}.txt'.format(i)
         full_out_path = os.path.join(out_path, out_name)
         
-        with open(full_out_path, 'wb') as fd:
-            assert isinstance(text, bytes)
+        with open(full_out_path, 'w', encoding='utf-8', newline='\n') as fd:
             fd.write(text)

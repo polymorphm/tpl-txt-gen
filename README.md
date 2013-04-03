@@ -3,7 +3,7 @@ tpl-txt-gen
 
 `tpl-txt-gen` is utility for massive generate text files on a template.
 
-Status
-------
+Project status
+--------------
 
-The current status of the project (this branch) is `Development`.
+`developer` version of branch.
