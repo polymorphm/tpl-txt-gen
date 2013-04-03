@@ -6,4 +6,4 @@ tpl-txt-gen
 Project status
 --------------
 
-`developer` version of branch.
+`beta` version of branch.
